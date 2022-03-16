@@ -1,0 +1,30 @@
+groups:
+  - name: targets
+    rules:
+      - alert: InvalidHTTPStatusCode
+        expr: probe_http_status_code != 200
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Invalid HTTP status code: *{{ $value }}*"
+          description: "Response for `{{ $labels.instance }}` has invalid HTTP status code *{{ $value }}* for longer than 1 minute."
+
+      - alert: HighResponseTime
+        expr: probe_duration_seconds > 5
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Average response time exceeds 5 seconds"
+          description: "Average response time for `{{ $labels.instance }}` is *{{ $value}}*."
+
+  - name: host
+    rules:
+      - alert: ServerRestarted
+        expr: node_time_seconds - node_boot_time_seconds < 300
+        labels:
+          severity: warning
+        annotations:
+          summary: "Server has restarted"
+          description: "Server has restarted *{{ humanizeDuration $value }}* ago."
